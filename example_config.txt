@@ -1,0 +1,8 @@
+database_connection <connexion string>
+collection_input <connexion string with invoices collection>
+collection_output <connexion string with groups collection>
+host 127.0.0.1
+port 8000
+file Online_Retail.xlsx
+db test
+coll invoices

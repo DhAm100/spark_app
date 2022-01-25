@@ -33,8 +33,3 @@ if __name__=='__main__':
     # this code is for test
     csv_path = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
     print(csv_path)
-    #db_name = 'test'
-    #coll_name = 'invoices'
-    #db_url = "mongodb+srv://dhafer:dhaferamri1@cluster0.javwz.mongodb.net/test?retryWrites=true&w=majority"
-    #documents = mongoimport(csv_path, db_name, coll_name, db_url)
-    #print(documents)

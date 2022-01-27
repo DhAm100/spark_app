@@ -18,6 +18,8 @@ class SparkConnector():
             .config('spark.jars.packages', 'org.mongodb.spark:mongo-spark-connector_2.12:3.0.1') \
             .getOrCreate()
         self.df = self.my_spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
+        self.df = self.df.na.drop() \
+                .filter(self.df.Quantity > 0)
 
     def average_unit_price_product(self):
         """
@@ -40,8 +42,7 @@ class SparkConnector():
         """
         return a pyspark.sql.types.Row containing the customer ID with max spending 
         """
-        return self.df.filter(col("CustomerID").isNotNull()) \
-                    .groupBy('CustomerID').agg((sum(self.df.Quantity * self.df.UnitPrice)) \
+        return self.df.groupBy('CustomerID').agg((sum(self.df.Quantity * self.df.UnitPrice)) \
                     .alias("ClientSpending")) \
                     .sort(col('ClientSpending').desc()) \
                     .first()
@@ -61,7 +62,7 @@ class SparkConnector():
         return a pyspark.sql.dataframe.DataFrame containing
         invoice number, invoice date, customer ID and country and invoice cost 
         """
-        groups = self.df.groupBy('InvoiceNo', 'InvoiceDate', 'CustomerID', 'Country') \
+        groups = self.df.groupBy('InvoiceNo', 'Country') \
                     .agg((sum(self.df.Quantity * self.df.UnitPrice)) \
                     .alias("InvoiceCost"))
         groups.write.format("com.mongodb.spark.sql.DefaultSource") \
@@ -93,8 +94,7 @@ class SparkConnector():
         return a pyspark.sql.dataframe.DataFrame containing
         for each invoice the ratio between price and quantity
         """
-        distribution = self.df.filter(col("CustomerID").isNotNull()) \
-                    .groupBy('StockCode', 'Country') \
+        distribution = self.df.groupBy('StockCode', 'Country') \
                     .agg((sum(self.df.Quantity)) \
                     .alias("ProductCount"))
         distribution.write.format("com.mongodb.spark.sql.DefaultSource") \

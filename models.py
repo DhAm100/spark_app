@@ -33,8 +33,6 @@ class Transaction(BaseModel):
 class InvoiceGroup(BaseModel):
 
     InvoiceNo: str
-    InvoiceDate: int
-    CustomerID: float
     Country: str
     InvoiceCost:float
 

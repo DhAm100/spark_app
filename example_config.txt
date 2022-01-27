@@ -3,6 +3,7 @@ collection_input <connexion string to database with collection name transactions
 collection_invoices <connexion string to database with collection name InvoiceGroups>
 collection_ratio_price_quantity <connexion string to database with collection name ratio>
 collection_product_country <connexion string to database with collection name ProductCountry>
+collection_test <connexion string to database with collection name test_transactions>
 host 127.0.0.1
 port 8000
 file Online_Retail.xlsx

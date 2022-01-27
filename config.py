@@ -26,13 +26,19 @@ arg_parser.add("--port", default="8000", help="Bind socket to this port")
 
 arg_parser.add("--file", default="Online_Retail.xlsx", help="CSV file containing data")
 
-arg_parser.add("--db", default="test", help="mongo database")
+arg_parser.add("--db", default="test", help="mongo database name")
 
 arg_parser.add("--coll", default="invoices", help="collection to use")
 
-arg_parser.add("--collection_input", help="collection from which to read")
+arg_parser.add("--collection_input", help="collection containing all transactions")
 
-arg_parser.add("--collection_output" help="collection in which to write")
+arg_parser.add("--collection_invoices", help="collection containing invoices")
+
+arg_parser.add("--collection_ratio_price_quantity", help="collection containing ratio between price and quantity for each invoice")
+
+arg_parser.add("--collection_product_country", help="collection containing distribution of products to countries")
+
+arg_parser.add("--collection_prices", help="collection containing distribution of prices")
 
 
 def parse_args():

@@ -12,8 +12,8 @@ from database import database
 
 config.parse_args()
 app = FastAPI(
-    title="spark API",
-    description="Simple API for csv data manipulation using spark",
+    title="spark MongoDB_API",
+    description="Simple API for csv data manipulation using spark and MongoDB",
     version="1.0.0",
 )
 
@@ -41,6 +41,7 @@ if __name__ == "__main__":
     # get csv file
     csv_file = csv_path + '/' + config.CONFIG.file
     # insert csv data into mongodb
-    database.mongoimport(csv_file, config.CONFIG.db, config.CONFIG.coll, config.CONFIG.database_connection)
+    #print('Data insertion in MongoDB database from {}... This might take some time'.format(csv_file))
+    #database.mongoimport(csv_file, config.CONFIG.db, config.CONFIG.coll, config.CONFIG.database_connection)
     # run web server
     uvicorn.run("main:app", host=config.CONFIG.host, port=int(config.CONFIG.port))

@@ -15,59 +15,105 @@ class SparkConnector():
             .builder \
             .appName("spark_app") \
             .config("spark.mongodb.input.uri", config.CONFIG.collection_input) \
-            .config("spark.mongodb.output.uri", config.CONFIG.collection_output) \
             .config('spark.jars.packages', 'org.mongodb.spark:mongo-spark-connector_2.12:3.0.1') \
             .getOrCreate()
         self.df = self.my_spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
         self.df.show()
         self.df.printSchema()
 
+    def average_unit_price_product(self):
+        """
+        return a pyspark.sql.types.Row containing the avg unit price 
+        """
+        return self.df.groupBy('StockCode') \
+                .agg(avg('UnitPrice').alias("AverageUnitPriceProduct"))
+
     def average_unit_price(self):
         """
-        return a pyspark.sql..types.Row containing the avg unit price 
+        return a pyspark.sql.types.Row containing the avg unit price 
         """
         return self.df.agg(avg('UnitPrice').alias("AverageUnitPrice")).first()
+                
 
     def max_customer_spending(self):
         """
         return a pyspark.sql.types.Row containing the customer ID with max spending 
         """
-        return self.df.groupBy('CustomerID').agg((sum(self.df.Quantity * self.df.UnitPrice)) \
+        return self.df.filter(col("CustomerID").isNotNull()) \
+                    .groupBy('CustomerID').agg((sum(self.df.Quantity * self.df.UnitPrice)) \
                     .alias("ClientSpending")) \
                     .sort(col('ClientSpending').desc()) \
-                    .filter(col("CustomerID").isNotNull()) \
                     .first()
 
     def max_product_count(self):
         """
         return a pyspark.sql.types.Row containing the most sold product 
         """
-        return self.df.groupBy('StockCode', 'Description').agg((sum(self.df.Quantity)) \
+        return self.df.groupBy('StockCode').agg((sum(self.df.Quantity)) \
                     .alias("ProductCount")) \
                     .sort(col('ProductCount').desc()) \
                     .first()
 
     def group_by_invoice(self):
         """
+        adds a collection to database containing invoices
         return a pyspark.sql.dataframe.DataFrame containing
         invoice number, invoice date, customer ID and country and invoice cost 
         """
         groups = self.df.groupBy('InvoiceNo', 'InvoiceDate', 'CustomerID', 'Country') \
                     .agg((sum(self.df.Quantity * self.df.UnitPrice)) \
                     .alias("InvoiceCost"))
-        groups.write.format("com.mongodb.spark.sql.DefaultSource").mode("append").save()
+        groups.write.format("com.mongodb.spark.sql.DefaultSource") \
+                .mode("Overwrite") \
+                .option("spark.mongodb.output.uri", config.CONFIG.collection_invoices) \
+                .save()
+        
         return groups
 
     def ratio_price_quantity(self):
         """
+        adds a collection containing ratio for each invoice
         return a pyspark.sql.dataframe.DataFrame containing
         for each invoice the ratio between price and quantity
         """
-        return self.df.groupBy('InvoiceNo') \
+        ratio = self.df.groupBy('InvoiceNo') \
                     .agg((sum(self.df.Quantity * self.df.UnitPrice)/sum(self.df.Quantity)) \
                     .alias("Ratio"))
+        ratio.write.format("com.mongodb.spark.sql.DefaultSource") \
+                .mode("Overwrite") \
+                .option("spark.mongodb.output.uri", config.CONFIG.collection_ratio_price_quantity) \
+                .save()
+
+        return ratio
+
+    def distribution_product_country(self):
+        """
+        adds a collection containing productID, country and product count
+        return a pyspark.sql.dataframe.DataFrame containing
+        for each invoice the ratio between price and quantity
+        """
+        distribution = self.df.filter(col("CustomerID").isNotNull()) \
+                    .groupBy('StockCode', 'Country') \
+                    .agg((sum(self.df.Quantity)) \
+                    .alias("ProductCount"))
+        distribution.write.format("com.mongodb.spark.sql.DefaultSource") \
+                .mode("Overwrite") \
+                .option("spark.mongodb.output.uri", config.CONFIG.collection_product_country) \
+                .save()
+
+        return distribution
+
+    def transaction_per_country(self):
+        """
+        return a pyspark.sql.dataframe.DataFrame containing
+        for each country the number of transactions it has
+        """
+        transactions = self.df.groupBy('Country').count()
+
+        return transactions
+
 
 
 if __name__=='__main__':
     sp = SparkConnector()
-    sp.df.groupBy('StockCode', 'Country').count().where(col('StockCode') == 22154).show()
+    sp.df.groupBy('InvoiceNo').count().show()

@@ -12,7 +12,7 @@ from database import database
 
 config.parse_args()
 app = FastAPI(
-    title="spark MongoDB_API",
+    title="Spark MongoDB API",
     description="Simple API for csv data manipulation using spark and MongoDB",
     version="1.0.0",
 )
@@ -40,6 +40,7 @@ if __name__ == "__main__":
     csv_path = os.path.realpath(os.path.join(os.path.dirname(__file__), 'data'))
     # get csv file
     csv_file = csv_path + '/' + config.CONFIG.file
+    templates.router.sp = data.SparkConnector()
     # insert csv data into mongodb
     #print('Data insertion in MongoDB database from {}... This might take some time'.format(csv_file))
     #database.mongoimport(csv_file, config.CONFIG.db, config.CONFIG.coll, config.CONFIG.database_connection)

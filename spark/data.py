@@ -23,10 +23,12 @@ class SparkConnector():
 
     def average_unit_price_product(self):
         """
-        return a pyspark.sql.types.Row containing the avg unit price 
+        return a pyspark.sql.dataframe.DataFrame containing the avg unit price for each product
         """
-        return self.df.groupBy('StockCode') \
-                .agg(avg('UnitPrice').alias("AverageUnitPriceProduct"))
+        average = self.df.groupBy('StockCode') \
+            .agg(avg('UnitPrice').alias("AverageUnitPriceProduct"))
+
+        return average.collect()
 
     def average_unit_price(self):
         """
@@ -68,7 +70,7 @@ class SparkConnector():
                 .option("spark.mongodb.output.uri", config.CONFIG.collection_invoices) \
                 .save()
         
-        return groups
+        return groups.collect()
 
     def ratio_price_quantity(self):
         """
@@ -84,7 +86,7 @@ class SparkConnector():
                 .option("spark.mongodb.output.uri", config.CONFIG.collection_ratio_price_quantity) \
                 .save()
 
-        return ratio
+        return ratio.collect()
 
     def distribution_product_country(self):
         """
@@ -101,7 +103,7 @@ class SparkConnector():
                 .option("spark.mongodb.output.uri", config.CONFIG.collection_product_country) \
                 .save()
 
-        return distribution
+        return distribution.collect()
 
     def transaction_per_country(self):
         """
@@ -110,7 +112,7 @@ class SparkConnector():
         """
         transactions = self.df.groupBy('Country').count()
 
-        return transactions
+        return transactions.collect()
 
 
 

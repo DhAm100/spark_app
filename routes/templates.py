@@ -3,7 +3,7 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse
-from models import Transaction
+from models import Transaction, InvoiceGroup, MostSold, Customer, AvgUnitPrice, AvgUnitPriceProduct, Ratio, DistributionProductCountry, TransactionsPerCountry
 
 
 router = APIRouter(
@@ -13,80 +13,57 @@ router = APIRouter(
 )
 
 
-@router.get("/InvoiceGroup", response_description="first 10 invoices")
+@router.get("/InvoiceGroup", response_description="first 10 invoices", response_model=List[InvoiceGroup])
 async def transaction_group_by_invoice():
-    sp = SparkConnector()
-    response = sp.group_by_invoice()
-    map_responses = map(lambda row: row.asDict(), response.collect())
-    list_responses = list(map_responses)
-    
-    dict_responses = {response['InvoiceNo']: response for response in list_responses[0:10]}
-    return dict_responses
+    response = router.sp.group_by_invoice()
+
+    return [r.asDict() for r in response[0:10]]
 
 
-@router.get("/MostSoldProduct", response_description="most sold product code")
+@router.get("/MostSoldProduct", response_description="most sold product code", response_model=MostSold)
 async def most_sold_product():
-    sp = SparkConnector()
-    response = sp.max_product_count()
+    response = router.sp.max_product_count()
     
     return response.asDict()
 
 
-@router.get("/MaxCustomerSpending", response_description="customer spending the most money")
+@router.get("/MaxCustomerSpending", response_description="customer spending the most money", response_model=Customer)
 async def max_customer_spending():
-    sp = SparkConnector()
-    response = sp.max_customer_spending()
+    response = router.sp.max_customer_spending()
 
     return response.asDict()
 
 
-@router.get("/AverageUnitPrice", response_description="average unit price")
+@router.get("/AverageUnitPrice", response_description="average unit price", response_model=AvgUnitPrice)
 async def avg_unit_price():
-    sp = SparkConnector()
-    response = sp.average_unit_price()
+    response = router.sp.average_unit_price()
     
     return response.asDict()
 
 
-@router.get("/AverageUnitPriceProduct", response_description="average unit price for each product")
+@router.get("/AverageUnitPriceProduct", response_description="average unit price for each product", response_model=List[AvgUnitPriceProduct])
 async def avg_unit_price_product():
-    sp = SparkConnector()
-    response = sp.average_unit_price_product()
-    map_responses = map(lambda row: row.asDict(), response.collect())
-    list_responses = list(map_responses)
+    response = router.sp.average_unit_price_product()
     
-    dict_responses = {response['StockCode']: response['AverageUnitPriceProduct'] for response in list_responses[0:10]}
-    return dict_responses
+    return [r.asDict() for r in response[0:10]]
 
 
-@router.get("/RatioPriceQuantity", response_description="first 10 invoice ratio between price and quantity")
+@router.get("/RatioPriceQuantity", response_description="first 10 invoices ratio between price and quantity", response_model=List[Ratio])
 async def ratio_pq():
-    sp = SparkConnector()
-    response = sp.ratio_price_quantity()
-    map_responses = map(lambda row: row.asDict(), response.collect())
-    list_responses = list(map_responses)
+    response = router.sp.ratio_price_quantity()
     
-    dict_responses = {response['InvoiceNo']: response['Ratio'] for response in list_responses[0:10]}
-    return dict_responses
+    return [r.asDict() for r in response[0:10]]
 
 
-@router.get("/DistributionProductCountry", response_description="New collection and associated chart created")
+@router.get("/DistributionProductCountry", response_description="New collection and associated chart created", response_model=List[DistributionProductCountry])
 async def distribution_pc():
-    sp = SparkConnector()
-    response = sp.distribution_product_country()
-    map_responses = map(lambda row: row.asDict(), response.collect())
-    list_responses = list(map_responses)
-    
-    dict_responses = {response['StockCode']: [response['Country'], response['ProductCount']] for response in list_responses[0:10]}
-    return dict_responses
+    response = router.sp.distribution_product_country()
+
+    return [r.asDict() for r in response[0:10]]
 
 
-@router.get("/TransactionsPerCountry", response_description="Number of transactions for each country")
+@router.get("/TransactionsPerCountry", response_description="Number of transactions for each country", response_model=List[TransactionsPerCountry])
 async def transaction_country():
-    sp = SparkConnector()
-    response = sp.transaction_per_country()
-    map_responses = map(lambda row: row.asDict(), response.collect())
-    list_responses = list(map_responses)
+    response = router.sp.transaction_per_country()
     
-    dict_responses = {response['Country']: response['count'] for response in list_responses}
-    return dict_responses
+    return [r.asDict() for r in response]

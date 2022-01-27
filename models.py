@@ -29,3 +29,42 @@ class Transaction(BaseModel):
     Quantity: int
     StockCode: str
     UnitPrice: float
+
+class InvoiceGroup(BaseModel):
+
+    InvoiceNo: str
+    InvoiceDate: int
+    CustomerID: float
+    Country: str
+    InvoiceCost:float
+
+class MostSold(BaseModel):
+
+    StockCode: str
+    ProductCount: int
+    
+
+class Customer(BaseModel):
+
+    CustomerID: float
+    ClientSpending: float
+
+class AvgUnitPrice(BaseModel):
+    AverageUnitPrice:float
+
+class AvgUnitPriceProduct(BaseModel):
+    StockCode: str
+    AverageUnitPriceProduct:float
+
+class Ratio(BaseModel):
+    InvoiceNo: str
+    Ratio: float
+
+class DistributionProductCountry(BaseModel):
+    StockCode: str
+    Country: str
+    ProductCount: int
+
+class TransactionsPerCountry(BaseModel):
+    Country: str
+    count: int

@@ -45,6 +45,6 @@ if __name__ == "__main__":
     mongo_object = MongoDatabase(config.CONFIG.database_connection, config.CONFIG.db, config.CONFIG.coll)
     mongo_object.insert_data(csv_file)
     # instantiate spark object
-    templates.router.sp = data.SparkConnector()
+    templates.router.sp = data.SparkConnector(config.CONFIG.collection_input)
     # run web server
     uvicorn.run("main:app", host=config.CONFIG.host, port=int(config.CONFIG.port))

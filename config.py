@@ -40,6 +40,8 @@ arg_parser.add("--collection_product_country", help="collection containing distr
 
 arg_parser.add("--collection_prices", help="collection containing distribution of prices")
 
+arg_parser.add("--collection_test", help="collection for unit tests")
+
 
 def parse_args():
     global CONFIG

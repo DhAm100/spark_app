@@ -7,26 +7,25 @@ class SparkConnector():
     """
     spark connector object to collect data
     """
-    def __init__(self):
+    def __init__(self, collection_input):
         """
         instantiate a spark session object and read data from mongodb
         """
         self.my_spark = SparkSession \
             .builder \
             .appName("spark_app") \
-            .config("spark.mongodb.input.uri", config.CONFIG.collection_input) \
+            .config("spark.mongodb.input.uri", collection_input) \
             .config('spark.jars.packages', 'org.mongodb.spark:mongo-spark-connector_2.12:3.0.1') \
             .getOrCreate()
         self.df = self.my_spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
-        self.df.show()
-        self.df.printSchema()
 
     def average_unit_price_product(self):
         """
         return a pyspark.sql.dataframe.DataFrame containing the avg unit price for each product
         """
         average = self.df.groupBy('StockCode') \
-            .agg(avg('UnitPrice').alias("AverageUnitPriceProduct"))
+            .agg((sum(self.df.Quantity * self.df.UnitPrice)/sum(self.df.Quantity)) \
+            .alias("AverageUnitPriceProduct"))
 
         return average.collect()
 

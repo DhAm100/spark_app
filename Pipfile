@@ -13,6 +13,7 @@ uvicorn = "*"
 configargparse = "*"
 mockupdb = "*"
 xlsxwriter = "*"
+requests = "*"
 
 [dev-packages]
 

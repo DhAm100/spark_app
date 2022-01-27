@@ -18,7 +18,8 @@ class SparkConnector():
             .config('spark.jars.packages', 'org.mongodb.spark:mongo-spark-connector_2.12:3.0.1') \
             .getOrCreate()
         self.df = self.my_spark.read.format("com.mongodb.spark.sql.DefaultSource").load()
-        self.df = self.df.na.drop() \
+        self.df = self.df.dropDuplicates() \
+                .na.drop() \
                 .filter(self.df.Quantity > 0)
 
     def average_unit_price_product(self):

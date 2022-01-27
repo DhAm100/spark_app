@@ -66,6 +66,7 @@ Once running, user can refer to http://127.0.0.1:8000/redoc for API specificatio
 - Get transactions/DistributionProductCountry : This will perform an insert operation into the ProductCountry collection and return the 10 first items inserted (this collection will be used to plot the distribution of each product for each country)
 - Get transactions/TransactionsPerCountry : This will return the number of transactions each country has
 
-PS : A number of assumptions were defined in order to get proper data : 
+PS : A number of assumptions were defined in order to get proper data :
+   - Duplicate transactions are filtered 
    - Quantity can't be 0 or a negative value otherwise transaction is not valid 
    - When a field is not entered in a transaction : we assume that the transaction is not valid 

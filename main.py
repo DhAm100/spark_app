@@ -7,7 +7,7 @@ from routes import templates
 
 import config
 from spark import data
-from database import database
+from database.database import MongoDatabase
 
 
 config.parse_args()
@@ -40,9 +40,11 @@ if __name__ == "__main__":
     csv_path = os.path.realpath(os.path.join(os.path.dirname(__file__), 'data'))
     # get csv file
     csv_file = csv_path + '/' + config.CONFIG.file
-    templates.router.sp = data.SparkConnector()
     # insert csv data into mongodb
-    #print('Data insertion in MongoDB database from {}... This might take some time'.format(csv_file))
-    #database.mongoimport(csv_file, config.CONFIG.db, config.CONFIG.coll, config.CONFIG.database_connection)
+    print('Data insertion in MongoDB database from {}... This might take some time'.format(csv_file))
+    mongo_object = MongoDatabase(config.CONFIG.database_connection, config.CONFIG.db, config.CONFIG.coll)
+    mongo_object.insert_data(csv_file)
+    # instantiate spark object
+    templates.router.sp = data.SparkConnector()
     # run web server
     uvicorn.run("main:app", host=config.CONFIG.host, port=int(config.CONFIG.port))

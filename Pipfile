@@ -11,6 +11,8 @@ plotly = "*"
 fastapi = "*"
 uvicorn = "*"
 configargparse = "*"
+mockupdb = "*"
+xlsxwriter = "*"
 
 [dev-packages]
 

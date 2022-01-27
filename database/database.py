@@ -6,27 +6,34 @@ import json
 import os
 
 
-def mongoimport(csv_path, db_name, coll_name, db_url):
-    """ 
-    Imports a csv file at path csv_name to a mongo colection
-    returns: count of the documants in the new collection
+class MongoDatabase(object):
     """
-    # connect to database
-    client = MongoClient(db_url)
-    # get database object
-    db = client[db_name]
-    # get collection object
-    coll = db[coll_name]
-    # read excel file into panda
-    data = pd.read_excel(csv_path)
-    # jsonify data
-    payload = json.loads(data.to_json(orient='records'))
-    # remove previous collection
-    coll.remove()
-    # insert new data
-    coll.insert(payload)
-    # return number of documents inserted
-    return coll.count()
+    MongoDB object for managing insert into database
+    """
+    def __init__(self, db_url, db_name, coll_name):
+        # connect to database
+        self.client = MongoClient(db_url)
+        # get database object
+        self.db = self.client[db_name]
+        # get collection object
+        self.coll = self.db[coll_name]
+
+    def read_file(self, csv_path):
+        # read excel file into panda
+        data = pd.read_excel(csv_path)
+        # jsonify data
+        payload = json.loads(data.to_json(orient='records'))
+
+        return payload
+
+    def insert_data(self, csv_path):
+        # get payload
+        payload = self.read_file(csv_path)
+        # remove previous collection
+        self.coll.remove()
+        # insert new data
+        return self.coll.insert(payload)
+        
 
 
 if __name__=='__main__':
